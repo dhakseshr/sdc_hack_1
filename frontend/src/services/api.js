@@ -16,6 +16,11 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Normalize backend error shape ({ error }) to the UI's expected field ({ message }).
+    if (error.response?.data && !error.response.data.message && error.response.data.error) {
+      error.response.data.message = error.response.data.error
+    }
+
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token')
       window.location.href = '/'
@@ -36,14 +41,14 @@ export const getMe = () => api.get('/api/auth/me')
 export const updateProfile = (data) => api.put('/api/users/me', data)
 
 // Users
-export const getUsers = () => api.get('/api/users')
+export const getUsers = () => api.get('/api/users/')
 
 export const getUser = (id) => api.get(`/api/users/${id}`)
 
 // Projects
-export const getProjects = () => api.get('/api/projects')
+export const getProjects = () => api.get('/api/projects/')
 
-export const createProject = (data) => api.post('/api/projects', data)
+export const createProject = (data) => api.post('/api/projects/', data)
 
 export const joinProject = (id) => api.post(`/api/projects/${id}/join`)
 
@@ -67,9 +72,9 @@ export const deleteComment = (commentId) =>
   api.delete(`/api/comments/${commentId}`)
 
 // Opportunities
-export const getOpportunities = () => api.get('/api/opportunities')
+export const getOpportunities = () => api.get('/api/opportunities/')
 
-export const createOpportunity = (data) => api.post('/api/opportunities', data)
+export const createOpportunity = (data) => api.post('/api/opportunities/', data)
 
 export const deleteOpportunity = (id) => api.delete(`/api/opportunities/${id}`)
 
@@ -80,11 +85,11 @@ export const getOpportunityResponses = (oppId) =>
   api.get(`/api/opportunities/${oppId}/responses`)
 
 // Feed
-export const getFeed = () => api.get('/api/feed')
+export const getFeed = () => api.get('/api/feed/')
 
 // Notifications
 export const getNotifications = (unread = false) =>
-  api.get(`/api/notifications?unread=${unread}`)
+  api.get(`/api/notifications/?unread=${unread}`)
 
 export const markNotificationRead = (id) =>
   api.put(`/api/notifications/${id}/read`)
@@ -96,7 +101,7 @@ export const deleteNotification = (id) =>
 
 // Search
 export const globalSearch = (query, type = 'all') =>
-  api.get(`/api/search?q=${query}&type=${type}`)
+  api.get(`/api/search/?q=${query}&type=${type}`)
 
 export const searchUsers = (query, skill = '') =>
   api.get(`/api/search/users?q=${query}&skill=${skill}`)
